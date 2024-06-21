@@ -3,13 +3,13 @@
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
-mod db;
-mod models;
+
 mod utils_base;
+mod service;
 use chrono::{DateTime, NaiveDate, TimeZone, Utc};
-use db::Database;
-use models::message::Message;
-use std::{error::Error, fmt::format};
+use service::{db::Database, models::message::Message};
+use std::*;
+
 use tauri::command;
 use tauri::State;
 

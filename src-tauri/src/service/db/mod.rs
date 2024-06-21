@@ -1,4 +1,4 @@
-use crate::models::message::Message;
+use crate::service::models::message::Message;
 use chrono::{DateTime, Utc};
 use sqlx::{mysql::MySqlPoolOptions, MySql, Pool};
 
