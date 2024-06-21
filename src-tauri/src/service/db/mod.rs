@@ -1,3 +1,5 @@
+use std::env;
+
 use crate::service::models::message::Message;
 use chrono::{DateTime, Utc};
 use sqlx::{mysql::MySqlPoolOptions, MySql, Pool};
@@ -7,10 +9,12 @@ pub struct Database {
 }
 
 impl Database {
-    pub async fn new(connection_str: &str) -> Result<Self, sqlx::Error> {
+    pub async fn new() -> Result<Self, sqlx::Error> {
+        let con_str = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+
         let pool = MySqlPoolOptions::new()
             .max_connections(5)
-            .connect(connection_str)
+            .connect(&con_str)
             .await?;
         Ok(Database { pool })
     }
@@ -34,6 +38,22 @@ impl Database {
             .await?;
 
         Ok(count.0)
+    }
+
+    pub async fn remove_messages(&self, created_at: &DateTime<Utc>) -> Result<(), sqlx::Error> {
+        let conn = &self.pool;
+
+        let query = r#"
+        DELETE
+        FROM 
+            hm_messages 
+        WHERE 
+            messagecreatetime <= ?
+    "#;
+
+        sqlx::query(query).bind(created_at).execute(conn).await?;
+
+        Ok(())
     }
 
     pub async fn get_messages(

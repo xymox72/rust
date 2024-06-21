@@ -9,26 +9,34 @@ import { IMessage } from "./models/Message";
 
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { format} from "date-fns";
+import { format } from "date-fns";
 
 const gridColumns = ["File Name", "Created time"];
 const searchQuery = ref('')
 
 
 const data: Ref<Array<IMessage>> = ref([]);
-const date = ref(null);
+const date = ref<string | null>(null);
 const count = ref(0);
 const isLoading = ref(false);
 
-async function getMessages(date: any) {
-  const selectedDate = format(date, "dd.MM.yyyy");
+async function getMessages() {
+  const selectedDate = formatedDate.value;
   isLoading.value = true;
-  const [mes, count_mes] = await Promise.all([invoke("get_meesages", { selectedDate }), invoke("count", { selectedDate })])
-  data.value = mes as any;;
-  count.value = count_mes as any;
-  isLoading.value = false;
+  try {
+    const [mes, coun] = await Promise.all([invoke("get_meesages", { selectedDate }), invoke("count", { selectedDate })]);
 
+    data.value = mes as any;
+    count.value = coun as any;
+  }
+  catch (err) {
+    console.log(err);
+  }
+  finally {
+    isLoading.value = false;
+  }
 }
+
 
 async function removeFiles() {
   await invoke("remove");
@@ -42,19 +50,42 @@ const countData = computed(() => {
   return count.value;
 });
 
-const reset = () =>{
+const reset = () => {
   isLoading.value = false;
   data.value = [];
   count.value = 0;
 }
 
+const formatedDate = computed(() => {
+  if (date.value !== null) {
+    return format(date.value, "dd.MM.yyyy");
+  }
+  return "";
+});
+
+const getCount = async (newDate: any) => {
+  date.value = newDate;
+  isLoading.value = true;
+  const selectedDate = formatedDate.value;
+  console.log(selectedDate, date.value);
+  count.value = await invoke("count", { selectedDate });
+
+  data.value = [];
+
+  isLoading.value = false;
+};
+
 </script>
 
 <template>
   <div v-if="!isLoading" class="container">
-    <VueDatePicker @cleared="reset"  @update:model-value="getMessages" v-model="date" />
+    <VueDatePicker :enable-time-picker="false" @cleared="reset" @update:model-value="getCount" v-model="date" />
 
-    <button :disabled="!countData" @click="removeFiles" type="submit">Remove All files</button>
+    <div class="buttons">
+      <button :disabled="!countData" @click="removeFiles" type="submit">Remove All files</button>
+      <button :disabled="!countData" @click="getMessages" type="submit">Show table of files</button>
+    </div>
+
     <div>SUMMARY: {{ countData }}</div>
     <DemoGrid :filter-key="searchQuery" :columns="gridColumns" :data="gridData" />
 
@@ -63,6 +94,12 @@ const reset = () =>{
 </template>
 
 <style scoped>
+.buttons {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+}
+
 .logo.vite:hover {
   filter: drop-shadow(0 0 2em #747bff);
 }

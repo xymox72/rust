@@ -3,26 +3,35 @@
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
-
-mod utils_base;
 mod service;
-use chrono::{DateTime, NaiveDate, TimeZone, Utc};
-use service::{db::Database, models::message::Message};
+mod utils_base;
+
+use chrono::{DateTime, Utc};
+use dotenv_vault::dotenv;
+use service::message_service::Service;
+use service::models::message::Message;
 use std::*;
 
 use tauri::command;
 use tauri::State;
 
 struct AppState {
-    db: Database,
+    service: Service,
 }
 
 #[command]
-async fn remove_files(state: State<'_, AppState>) -> Result<(), String> {
-    let db = &state.db;
-    let date_str = "20.04.2024";
+async fn remove_files(state: State<'_, AppState>,  selected_date: String,) -> Result<u64, String> {
+    let service = &state.service;
+    let datetime: DateTime<Utc> =
+    utils_base::utils_base::date_format(&selected_date).map_err(|err| err.to_string())?;
 
-    Ok(())
+    let row_affected = service.remove_messages(datetime).await.map_err(|err| err.to_string());
+    
+    match row_affected {
+        Ok(num) => Ok(num),
+        Err(err) => Err(err),
+    }
+  
 }
 
 #[command]
@@ -30,52 +39,50 @@ async fn get_meesages(
     state: State<'_, AppState>,
     selected_date: String,
 ) -> Result<Vec<Message>, String> {
-    let db = &state.db;
+    let service = &state.service;
 
     let date_str = selected_date;
 
     let datetime: DateTime<Utc> =
         utils_base::utils_base::date_format(&date_str).map_err(|err| err.to_string())?;
-    let result = db
-        .get_messages(&datetime)
+
+    let messages_result = service
+        .get_meesages(datetime)
         .await
         .map_err(|err| err.to_string());
 
-    match result {
+    match messages_result {
         Ok(messages) => Ok(messages),
         Err(err) => Err(err),
     }
 }
 
-
 #[command]
-async fn count(
-    state: State<'_, AppState>,
-    selected_date: String,
-) -> Result<i64, String> {
-    let db = &state.db;
+async fn count(state: State<'_, AppState>, selected_date: String) -> Result<i64, String> {
+    let service = &state.service;
 
     let date_str = selected_date;
 
     let datetime: DateTime<Utc> =
         utils_base::utils_base::date_format(&date_str).map_err(|err| err.to_string())?;
-    let result = db
-        .count(&datetime)
+    let count_result = service
+        .get_count_of_messages(datetime)
         .await
         .map_err(|err| err.to_string());
 
-    match result {
-        Ok(messages) => Ok(messages),
+    match count_result {
+        Ok(count) => Ok(count),
         Err(err) => Err(err),
     }
 }
 
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
-    let db = Database::new("mysql://root:12345@localhost/hmaildb").await?;
+    dotenv().ok();
+    let service = Service::new().await?;
 
     tauri::Builder::default()
-        .manage(AppState { db })
+        .manage(AppState { service })
         .invoke_handler(tauri::generate_handler![get_meesages, remove_files, count])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
