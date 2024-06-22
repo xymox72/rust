@@ -7,9 +7,12 @@ mod service;
 mod utils_base;
 
 use chrono::{DateTime, Utc};
+use collections::HashMap;
 use dotenv_vault::dotenv;
 use service::message_service::Service;
 use service::models::message::Message;
+use utils_base::utils_base::MessageServiceError;
+
 use std::*;
 
 use tauri::command;
@@ -32,6 +35,11 @@ async fn remove_files(state: State<'_, AppState>,  selected_date: String,) -> Re
         Err(err) => Err(err),
     }
   
+}
+
+#[command]
+ fn get_envs() -> Result<HashMap<String, String>, String> {
+    Ok(env::vars().collect())
 }
 
 #[command]
@@ -77,13 +85,13 @@ async fn count(state: State<'_, AppState>, selected_date: String) -> Result<i64,
 }
 
 #[tokio::main]
-async fn main() -> Result<(), sqlx::Error> {
+async fn main() -> Result<(), MessageServiceError> {
     dotenv().ok();
     let service = Service::new().await?;
 
     tauri::Builder::default()
         .manage(AppState { service })
-        .invoke_handler(tauri::generate_handler![get_meesages, remove_files, count])
+        .invoke_handler(tauri::generate_handler![get_meesages, remove_files, count, get_envs])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 

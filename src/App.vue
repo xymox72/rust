@@ -1,12 +1,12 @@
 <script setup lang="ts">
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import { Ref, computed, ref } from "vue";
+import { Ref, computed, onMounted, ref } from "vue";
 import StepLabe from "./components/StepLabe.vue";
 import DemoGrid from './components/Table.vue';
 import { invoke } from "@tauri-apps/api/tauri";
 import { IMessage } from "./models/Message";
-
+import EnvsView from "./compositions/Envs.vue";
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { format } from "date-fns";
@@ -14,6 +14,7 @@ import Loader from "./components/Loader.vue";
 
 const gridColumns = ["File Name", "Created time"];
 const searchQuery = ref('')
+
 
 
 const data: Ref<Array<IMessage>> = ref([]);
@@ -40,7 +41,7 @@ async function getMessages() {
 
 
 async function removeFiles() {
-  await invoke("remove");
+  await invoke("remove_files", {selectedDate: formatedDate.value});
 }
 
 const gridData = computed(() =>
@@ -81,11 +82,16 @@ const step = computed<number>(() => {
   return !date.value ? 1 : 2;
 });
 
+onMounted(() => {
+  
+});
+
 </script>
 
 <template>
   <div v-if="!isLoading" class="container">
     <StepLabe :step="step"/>
+    <EnvsView/>
     <VueDatePicker :enable-time-picker="false" @cleared="reset" @update:model-value="getCount" v-model="date" />
 
     <div v-if="countData" class="buttons">

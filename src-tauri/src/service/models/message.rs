@@ -41,11 +41,11 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug, sqlx::FromRow)]
 pub struct Message {
     #[serde(with = "my_date_format")]
-    messagecreatetime: NaiveDateTime,
-    messagefilename: String,
-    messageflags:i64,
-    messagefolderid: i64,
-    messagefrom: String,
-    messageid: i64,
-    messageuid: i64,
+    pub messagecreatetime: NaiveDateTime,
+    pub messagefilename: String,
+    pub messageflags:i64,
+    pub messagefolderid: i64,
+    pub messagefrom: String,
+    pub messageid: i64,
+    pub messageuid: i64,
 }
