@@ -2,7 +2,7 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 import { Ref, computed, ref } from "vue";
-
+import StepLabe from "./components/StepLabe.vue";
 import DemoGrid from './components/Table.vue';
 import { invoke } from "@tauri-apps/api/tauri";
 import { IMessage } from "./models/Message";
@@ -10,6 +10,7 @@ import { IMessage } from "./models/Message";
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { format } from "date-fns";
+import Loader from "./components/Loader.vue";
 
 const gridColumns = ["File Name", "Created time"];
 const searchQuery = ref('')
@@ -75,22 +76,30 @@ const getCount = async (newDate: any) => {
   isLoading.value = false;
 };
 
+const step = computed<number>(() => {
+  
+  return !date.value ? 1 : 2;
+});
+
 </script>
 
 <template>
   <div v-if="!isLoading" class="container">
+    <StepLabe :step="step"/>
     <VueDatePicker :enable-time-picker="false" @cleared="reset" @update:model-value="getCount" v-model="date" />
 
-    <div class="buttons">
-      <button :disabled="!countData" @click="removeFiles" type="submit">Remove All files</button>
-      <button :disabled="!countData" @click="getMessages" type="submit">Show table of files</button>
+    <div v-if="countData" class="buttons">
+      <button class="red button" :disabled="!countData" @click="removeFiles" type="submit">Remove All files</button>
+      <button  class="green button"  :disabled="!countData" @click="getMessages" type="submit">Show table of files</button>
     </div>
 
     <div>SUMMARY: {{ countData }}</div>
     <DemoGrid :filter-key="searchQuery" :columns="gridColumns" :data="gridData" />
 
   </div>
-  <div v-else>LOADING</div>
+   <Loader v-else/>
+
+
 </template>
 
 <style scoped>
@@ -98,6 +107,19 @@ const getCount = async (newDate: any) => {
   display: flex;
   align-content: center;
   justify-content: center;
+  gap: 10px;
+}
+
+.button{
+  color: white;
+}
+
+.red{
+  background-color: red;
+}
+
+.green{
+  background-color: #42b983;
 }
 
 .logo.vite:hover {
@@ -109,7 +131,7 @@ const getCount = async (newDate: any) => {
 }
 
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-family:  Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
@@ -126,11 +148,11 @@ const getCount = async (newDate: any) => {
 
 .container {
   margin: 0;
-  padding-top: 10vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   text-align: center;
+  gap: 10px;
 }
 
 .logo {

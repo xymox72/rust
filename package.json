@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "vue-tsc --noEmit && vite build && copy .env .\\dist\\.env",
     "preview": "vite preview",
     "tauri": "tauri"
   },
@@ -14,14 +14,17 @@
     "@vuepic/vue-datepicker": "^8.8.0",
     "date-fns": "^3.6.0",
     "luxon": "^3.4.4",
-    "vue": "^3.3.4"
+    "vue": "^3.3.4",
+    "vue3-spinners": "^1.2.2"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1",
     "@types/luxon": "^3.4.2",
+    "@types/node": "^20.14.8",
     "@vitejs/plugin-vue": "^5.0.4",
     "typescript": "^5.0.2",
     "vite": "^5.0.0",
+    "vite-plugin-static-copy": "^1.0.5",
     "vue-tsc": "^1.8.5"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"

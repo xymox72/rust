@@ -19,6 +19,7 @@ tokio = { version = "1", features = ["full"] }
 chrono = "0.4"
 dotenv-vault = "0.1.2"
 env_logger = "0.11.3"
+async-fs = "2.1.2"
 
 
 [features]
