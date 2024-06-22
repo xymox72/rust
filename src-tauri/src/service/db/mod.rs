@@ -59,10 +59,10 @@ impl Database {
     pub async fn get_messages(
         &self,
         created_at: &DateTime<Utc>,
+        is_full: Option<bool>
     ) -> Result<Vec<Message>, sqlx::Error> {
         let conn = &self.pool;
-
-        let query = r#"
+        let mut query  =   r#"
         SELECT
             messagecreatetime, 
             messagefilename, 
@@ -78,6 +78,24 @@ impl Database {
         ORDER BY  messagecreatetime desc
         LIMIT 10000
     "#;
+        if is_full.is_some_and(|val| val){
+          query =  r#"
+            SELECT
+                messagecreatetime, 
+                messagefilename, 
+                messageflags, 
+                messagefolderid, 
+                messagefrom, 
+                messageid, 
+                messageuid 
+            FROM 
+                hm_messages 
+            WHERE 
+                messagecreatetime <= ?
+            ORDER BY  messagecreatetime desc
+        "#;
+        }
+      
 
         let messages = sqlx::query_as::<_, Message>(&query)
             .bind(created_at)

@@ -16,8 +16,8 @@ impl Service {
         let file_service = FileService::new()?;
         Ok(Service { db, file_service })
     }
-    pub async fn get_meesages(&self, date_time: DateTime<Utc>) -> Result<Vec<Message>, MessageServiceError> {
-        let messages = self.db.get_messages(&date_time).await?;
+    pub async fn get_meesages(&self, date_time: DateTime<Utc>, is_full: Option<bool>) -> Result<Vec<Message>, MessageServiceError> {
+        let messages = self.db.get_messages(&date_time, is_full).await?;
         Ok(messages)
     }
 
@@ -27,15 +27,17 @@ impl Service {
         Ok(count)
     }
    
-    pub async fn remove_messages(&self, date_time: DateTime<Utc>) -> Result<u64, MessageServiceError> {
-        let messages = self.get_meesages(date_time).await?;
+    pub async fn remove_messages<F>(&self, date_time: DateTime<Utc>, emit: F) -> Result<(), MessageServiceError> 
+    where
+    F: Fn(String) + Send + Sync,{
+        let messages = self.get_meesages(date_time, Some(true)).await?;
         let files_id: Vec<String> = messages.into_iter().map(|msg| msg.messagefilename).collect();
 
         if files_id.len() > 0{
-           self.file_service.delete_files(files_id).await?;
+           self.file_service.delete_files(files_id,  emit).await?;
         }
 
        // self.db.remove_messages(&date_time).await?;
-        Ok(100)
+        Ok(())
     }
 }

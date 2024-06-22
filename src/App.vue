@@ -5,6 +5,7 @@ import { Ref, computed, onMounted, ref } from "vue";
 import StepLabe from "./components/StepLabe.vue";
 import DemoGrid from './components/Table.vue';
 import { invoke } from "@tauri-apps/api/tauri";
+import { TauriEvent, listen } from '@tauri-apps/api/event';
 import { IMessage } from "./models/Message";
 import EnvsView from "./compositions/Envs.vue";
 import VueDatePicker from '@vuepic/vue-datepicker';
@@ -22,6 +23,8 @@ const date = ref<string | null>(null);
 const count = ref(0);
 const isLoading = ref(false);
 
+const countSucces = ref<number>(0);
+  const countFails = ref<Array<string>>([]);
 async function getMessages() {
   const selectedDate = formatedDate.value;
   isLoading.value = true;
@@ -41,7 +44,9 @@ async function getMessages() {
 
 
 async function removeFiles() {
+
   await invoke("remove_files", {selectedDate: formatedDate.value});
+
 }
 
 const gridData = computed(() =>
@@ -52,11 +57,7 @@ const countData = computed(() => {
   return count.value;
 });
 
-const reset = () => {
-  isLoading.value = false;
-  data.value = [];
-  count.value = 0;
-}
+
 
 const formatedDate = computed(() => {
   if (date.value !== null) {
@@ -69,7 +70,7 @@ const getCount = async (newDate: any) => {
   date.value = newDate;
   isLoading.value = true;
   const selectedDate = formatedDate.value;
-  console.log(selectedDate, date.value);
+
   count.value = await invoke("count", { selectedDate });
 
   data.value = [];
@@ -83,28 +84,54 @@ const step = computed<number>(() => {
 });
 
 onMounted(() => {
-  
+  listen<string>('file', (event) => {
+       console.log("event", event.payload);
+       if (event.payload.includes("Failed to delete")){
+       countFails.value.push(event.payload);
+       
+       }else{
+       
+       }
+      });
 });
 
+const isShowInfoFails = ref<boolean>(false);
+
+const showInfo = () => {
+  isShowInfoFails.value = !isShowInfoFails.value;
+}
+const reset = () => {
+  isLoading.value = false;
+  data.value = [];
+  count.value = 0;
+  countFails.value = [];
+  isShowInfoFails.value = false; 
+}
 </script>
 
 <template>
   <div v-if="!isLoading" class="container">
     <StepLabe :step="step"/>
     <EnvsView/>
+ 
     <VueDatePicker :enable-time-picker="false" @cleared="reset" @update:model-value="getCount" v-model="date" />
 
     <div v-if="countData" class="buttons">
       <button class="red button" :disabled="!countData" @click="removeFiles" type="submit">Remove All files</button>
       <button  class="green button"  :disabled="!countData" @click="getMessages" type="submit">Show table of files</button>
+      <button  class="red button" @click="showInfo" >
+      FAILS - {{ countFails.length }}
+    </button>
     </div>
 
     <div>SUMMARY: {{ countData }}</div>
     <DemoGrid :filter-key="searchQuery" :columns="gridColumns" :data="gridData" />
-
+   
+    <div v-if="isShowInfoFails" v-for="mes in countFails">
+      FAILS - {{ mes }}
+    </div>
   </div>
-   <Loader v-else/>
-
+   <Loader v-else/>   
 
 </template>
 

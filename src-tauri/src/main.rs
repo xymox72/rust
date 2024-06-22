@@ -15,25 +15,24 @@ use utils_base::utils_base::MessageServiceError;
 
 use std::*;
 
-use tauri::command;
-use tauri::State;
+use tauri::{command, window, State, Window};
+
 
 struct AppState {
     service: Service,
 }
 
 #[command]
-async fn remove_files(state: State<'_, AppState>,  selected_date: String,) -> Result<u64, String> {
+async fn remove_files(state: State<'_, AppState>, window: Window,  selected_date: String,) -> Result<(), String> {
     let service = &state.service;
     let datetime: DateTime<Utc> =
     utils_base::utils_base::date_format(&selected_date).map_err(|err| err.to_string())?;
-
-    let row_affected = service.remove_messages(datetime).await.map_err(|err| err.to_string());
     
-    match row_affected {
-        Ok(num) => Ok(num),
-        Err(err) => Err(err),
-    }
+    service.remove_messages(datetime, |message| {
+        window.emit("file", message).unwrap();
+    }).await.map_err(|err| err.to_string())?;
+    
+   Ok(())
   
 }
 
@@ -55,7 +54,7 @@ async fn get_meesages(
         utils_base::utils_base::date_format(&date_str).map_err(|err| err.to_string())?;
 
     let messages_result = service
-        .get_meesages(datetime)
+        .get_meesages(datetime, None)
         .await
         .map_err(|err| err.to_string());
 
@@ -66,7 +65,7 @@ async fn get_meesages(
 }
 
 #[command]
-async fn count(state: State<'_, AppState>, selected_date: String) -> Result<i64, String> {
+async fn count(state: State<'_, AppState>,  selected_date: String) -> Result<i64, String> {
     let service = &state.service;
 
     let date_str = selected_date;
@@ -90,6 +89,7 @@ async fn main() -> Result<(), MessageServiceError> {
     let service = Service::new().await?;
 
     tauri::Builder::default()
+
         .manage(AppState { service })
         .invoke_handler(tauri::generate_handler![get_meesages, remove_files, count, get_envs])
         .run(tauri::generate_context!())
