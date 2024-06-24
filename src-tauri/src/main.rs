@@ -15,7 +15,7 @@ use utils_base::utils_base::MessageServiceError;
 
 use std::*;
 
-use tauri::{command, window, State, Window};
+use tauri::{command, State, Window};
 
 
 struct AppState {

@@ -44,8 +44,11 @@ async function getMessages() {
 
 
 async function removeFiles() {
-
+  countFails.value = [];
   await invoke("remove_files", {selectedDate: formatedDate.value});
+  alert("Файлы удалены");
+
+  reset();
 
 }
 
@@ -86,12 +89,7 @@ const step = computed<number>(() => {
 onMounted(() => {
   listen<string>('file', (event) => {
        console.log("event", event.payload);
-       if (event.payload.includes("Failed to delete")){
        countFails.value.push(event.payload);
-       
-       }else{
-       
-       }
       });
 });
 
@@ -115,7 +113,9 @@ const reset = () => {
     <EnvsView/>
  
     <VueDatePicker :enable-time-picker="false" @cleared="reset" @update:model-value="getCount" v-model="date" />
-
+    <div>
+      Загруженные файлы - {{ countFails.length }}
+    </div>
     <div v-if="countData" class="buttons">
       <button class="red button" :disabled="!countData" @click="removeFiles" type="submit">Remove All files</button>
       <button  class="green button"  :disabled="!countData" @click="getMessages" type="submit">Show table of files</button>
