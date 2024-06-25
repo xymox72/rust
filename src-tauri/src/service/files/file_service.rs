@@ -6,6 +6,9 @@ use std::{
 };
 use tokio::fs::{read_dir, remove_dir, remove_file};
 
+use crate::service::log::init_logging;
+use log::{info, error};
+
 pub struct FileService {
     working_derictory: String,
 }
@@ -14,6 +17,7 @@ impl FileService {
     pub fn new() -> Result<Self, VarError> {
         let working_derictory =
             env::var("WORKING_DIRECTORY").expect("WORKING_DIRECTORY isn't presented");
+            info!("Initialized FileService with working directory: {}", working_derictory);
         Ok(FileService { working_derictory })
     }
 
@@ -21,6 +25,7 @@ impl FileService {
         let mut file_paths = Vec::new();
         self.search_files_recursively(&PathBuf::from(&self.working_derictory), &mut file_paths)
             .await?;
+        info!("Found {} all files", file_paths.len());
         Ok(file_paths)
     }
 
@@ -58,11 +63,21 @@ impl FileService {
                 }
             })
             .collect();
+        info!("Found filtred {} files",filted_files.len());
 
+        
         for file_path in filted_files {
             match self.delete_file_by_path(file_path).await {
-                Ok(_) => emit(format!("File '{:?}' deleted successfully", file_path)),
-                Err(e) => emit(format!("Failed to delete file '{:?}': {:?}", file_path, e)),
+                Ok(_) => {
+                    let format = format!("File '{:?}' deleted successfully", file_path);
+                    emit(format);
+                    info!("File '{:?}' deleted successfully", file_path);
+                },
+                Err(e) => {
+                    let format = format!("Failed to delete file '{:?}': {:?}", file_path, e);
+                    emit(format);
+                    error!("Failed to delete file '{:?}': {:?}", file_path, e);
+                },
             }
         }
         
@@ -98,6 +113,7 @@ impl FileService {
 
         if is_empty {
             remove_dir(dir).await?;
+            info!("Deleted empty directory: {:?}", dir);
         }
 
         Ok(())

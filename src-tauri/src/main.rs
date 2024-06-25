@@ -9,8 +9,10 @@ mod utils_base;
 use chrono::{DateTime, Utc};
 use collections::HashMap;
 use dotenv_vault::dotenv;
+use log::{info, log};
 use service::message_service::Service;
 use service::models::message::Message;
+use sqlx::pool::CloseEvent;
 use utils_base::utils_base::MessageServiceError;
 
 use std::*;
@@ -88,11 +90,25 @@ async fn main() -> Result<(), MessageServiceError> {
     dotenv().ok();
     let service = Service::new().await?;
 
+       // Устанавливаем обработчик сигнала
+       ctrlc::set_handler(move || {
+        info!("Program is shutting down");
+        std::process::exit(0);
+    }).expect("Error setting Ctrl-C handler");
     tauri::Builder::default()
 
         .manage(AppState { service })
         .invoke_handler(tauri::generate_handler![get_meesages, remove_files, count, get_envs])
+        .on_window_event(|event| match event.event() {
+            tauri::WindowEvent::CloseRequested { api, .. } => {
+            info!("Program is shutting down");
+            info!("##########GOODBYE##########");
+              
+            }
+            _ => {}
+          })
         .run(tauri::generate_context!())
+        
         .expect("error while running tauri application");
 
     Ok(())
