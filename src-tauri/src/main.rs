@@ -30,7 +30,7 @@ async fn remove_files(state: State<'_, AppState>, window: Window,  selected_date
     let datetime: DateTime<Utc> =
     utils_base::utils_base::date_format(&selected_date).map_err(|err| err.to_string())?;
     
-    service.remove_messages(datetime, |message| {
+    service.remove_messages_SQL(datetime, |message| {
         window.emit("file", message).unwrap();
     }).await.map_err(|err| err.to_string())?;
     

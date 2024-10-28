@@ -5,7 +5,7 @@ import { Ref, computed, onMounted, ref } from "vue";
 import StepLabe from "./components/StepLabe.vue";
 import DemoGrid from './components/Table.vue';
 import { invoke } from "@tauri-apps/api/tauri";
-import { TauriEvent, listen } from '@tauri-apps/api/event';
+import { listen } from '@tauri-apps/api/event';
 import { IMessage } from "./models/Message";
 import EnvsView from "./compositions/Envs.vue";
 import VueDatePicker from '@vuepic/vue-datepicker';
@@ -23,7 +23,7 @@ const date = ref<string | null>(null);
 const count = ref(0);
 const isLoading = ref(false);
 
-const countSucces = ref<number>(0);
+//const countSucces = ref<number>(0);
   const countFails = ref<Array<string>>([]);
 async function getMessages() {
   const selectedDate = formatedDate.value;
@@ -95,9 +95,7 @@ onMounted(() => {
 
 const isShowInfoFails = ref<boolean>(false);
 
-const showInfo = () => {
-  isShowInfoFails.value = !isShowInfoFails.value;
-}
+
 const reset = () => {
   isLoading.value = false;
   data.value = [];
@@ -113,18 +111,12 @@ const reset = () => {
     <EnvsView/>
  
     <VueDatePicker :enable-time-picker="false" @cleared="reset" @update:model-value="getCount" v-model="date" />
-    <div>
-      Загруженные файлы - {{ countFails.length }}
-    </div>
     <div v-if="countData" class="buttons">
-      <button class="red button" :disabled="!countData" @click="removeFiles" type="submit">Remove All files</button>
-      <button  class="green button"  :disabled="!countData" @click="getMessages" type="submit">Show table of files</button>
-      <button  class="red button" @click="showInfo" >
-      FAILS - {{ countFails.length }}
-    </button>
+      <button class="red button" :disabled="!countData" @click="removeFiles" type="submit">Удалить сообщения SQL</button>
+      <button  class="green button"  :disabled="!countData" @click="getMessages" type="submit">Просмотр таблицы файлов</button>
     </div>
 
-    <div>SUMMARY: {{ countData }}</div>
+    <div>Всего сообщений SQL: {{ countData }}</div>
     <DemoGrid :filter-key="searchQuery" :columns="gridColumns" :data="gridData" />
    
     <div v-if="isShowInfoFails" v-for="mes in countFails">

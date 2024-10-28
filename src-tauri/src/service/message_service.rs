@@ -30,7 +30,17 @@ impl Service {
 
         Ok(count)
     }
-   
+
+    
+    pub async fn remove_messages_SQL<F>(&self, date_time: DateTime<Utc>, emit: F) -> Result<(), MessageServiceError> 
+    where
+    F: Fn(String) + Send + Sync,{
+
+
+       self.db.remove_messages(&date_time).await?;
+       info!("We have done. Enjoy!");
+        Ok(())
+    }
     pub async fn remove_messages<F>(&self, date_time: DateTime<Utc>, emit: F) -> Result<(), MessageServiceError> 
     where
     F: Fn(String) + Send + Sync,{
