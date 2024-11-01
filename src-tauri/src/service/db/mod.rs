@@ -2,6 +2,7 @@ use std::env;
 
 use crate::service::models::message::Message;
 use chrono::{DateTime, Utc};
+use log::info;
 use sqlx::{mysql::MySqlPoolOptions, MySql, Pool};
 
 pub struct Database {
@@ -11,7 +12,7 @@ pub struct Database {
 impl Database {
     pub async fn new() -> Result<Self, sqlx::Error> {
         let con_str = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-
+        info!("Попытка подключиться к базе данных...");
         let pool = MySqlPoolOptions::new()
             .max_connections(5)
             .connect(&con_str)

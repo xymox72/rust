@@ -5,16 +5,15 @@
 
 mod service;
 mod utils_base;
-
+mod logging;
 use chrono::{DateTime, Utc};
 use collections::HashMap;
-use dotenv_vault::dotenv;
-use log::{info, log};
+use flexi_logger::{FileSpec, Logger, WriteMode};
+use log::{info, log, error};
 use service::message_service::Service;
 use service::models::message::Message;
-use sqlx::pool::CloseEvent;
 use utils_base::utils_base::MessageServiceError;
-
+use dotenv::dotenv;
 use std::*;
 
 use tauri::{command, State, Window};
@@ -87,15 +86,19 @@ async fn count(state: State<'_, AppState>,  selected_date: String) -> Result<i64
 
 #[tokio::main]
 async fn main() -> Result<(), MessageServiceError> {
-    dotenv().ok();
+  logging::init_logging();
+    info!("Приложение запускается...");
+    match dotenv() {
+        Ok(_) => info!("Файл .env успешно загружен"),
+        Err(e) => error!("Не удалось загрузить .env файл: {}", e),
+    }
     let service = Service::new().await?;
 
-       // Устанавливаем обработчик сигнала
        ctrlc::set_handler(move || {
         info!("Program is shutting down");
         std::process::exit(0);
     }).expect("Error setting Ctrl-C handler");
-    tauri::Builder::default()
+        tauri::Builder::default()
 
         .manage(AppState { service })
         .invoke_handler(tauri::generate_handler![get_meesages, remove_files, count, get_envs])

@@ -5,7 +5,7 @@ import { Ref, computed, onMounted, ref } from "vue";
 import StepLabe from "./components/StepLabe.vue";
 import DemoGrid from './components/Table.vue';
 import { invoke } from "@tauri-apps/api/tauri";
-import { TauriEvent, listen } from '@tauri-apps/api/event';
+import { listen } from '@tauri-apps/api/event';
 import { IMessage } from "./models/Message";
 import EnvsView from "./compositions/Envs.vue";
 import VueDatePicker from '@vuepic/vue-datepicker';
@@ -23,7 +23,7 @@ const date = ref<string | null>(null);
 const count = ref(0);
 const isLoading = ref(false);
 
-const countSucces = ref<number>(0);
+
   const countFails = ref<Array<string>>([]);
 async function getMessages() {
   const selectedDate = formatedDate.value;
