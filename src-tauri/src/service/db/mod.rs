@@ -14,7 +14,7 @@ impl Database {
         let con_str = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
         info!("Попытка подключиться к базе данных...");
         let pool = MySqlPoolOptions::new()
-            .max_connections(5)
+            .max_connections(1)
             .connect(&con_str)
             .await?;
         Ok(Database { pool })

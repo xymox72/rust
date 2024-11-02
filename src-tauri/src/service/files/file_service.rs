@@ -6,7 +6,6 @@ use std::{
 };
 use tokio::fs::{read_dir, remove_dir, remove_file};
 
-use crate::service::log::init_logging;
 use log::{info, error};
 
 pub struct FileService {

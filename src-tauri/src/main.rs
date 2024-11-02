@@ -15,8 +15,7 @@ use service::models::message::Message;
 use utils_base::utils_base::MessageServiceError;
 use dotenv::dotenv;
 use std::*;
-
-use tauri::{command, State, Window};
+use tauri::{command, State, Window, Builder, Manager};
 
 
 struct AppState {
@@ -87,11 +86,9 @@ async fn count(state: State<'_, AppState>,  selected_date: String) -> Result<i64
 #[tokio::main]
 async fn main() -> Result<(), MessageServiceError> {
   logging::init_logging();
+  dotenv().ok();
     info!("Приложение запускается...");
-    match dotenv() {
-        Ok(_) => info!("Файл .env успешно загружен"),
-        Err(e) => error!("Не удалось загрузить .env файл: {}", e),
-    }
+    
     let service = Service::new().await?;
 
        ctrlc::set_handler(move || {
@@ -99,7 +96,6 @@ async fn main() -> Result<(), MessageServiceError> {
         std::process::exit(0);
     }).expect("Error setting Ctrl-C handler");
         tauri::Builder::default()
-
         .manage(AppState { service })
         .invoke_handler(tauri::generate_handler![get_meesages, remove_files, count, get_envs])
         .on_window_event(|event| match event.event() {

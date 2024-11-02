@@ -6,7 +6,7 @@ use crate::service::files::file_service::FileService;
 use chrono::{DateTime, Utc};
 use log::info;
 
-use crate::service::log::init_logging;
+
 
 pub struct Service {
     db: Database,
@@ -17,7 +17,6 @@ impl Service {
     pub async fn new() -> Result<Self, MessageServiceError> {
         let db = Database::new().await?;
         let file_service = FileService::new()?;
-        init_logging();
         Ok(Service { db, file_service })
     }
     pub async fn get_meesages(&self, date_time: DateTime<Utc>, is_full: Option<bool>) -> Result<Vec<Message>, MessageServiceError> {
