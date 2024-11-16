@@ -48,18 +48,10 @@ const isShowInfoFails = ref(false);
 
 // Обработка выбранной даты или вычисленной по дням
 const handleDateSelection = async (days: number) => {
-  await fileManager.getCount(days)
+  await fileManager.getMessages(days);
 
   updateStep(1);
 };
-
-
-
-
-
-
-
-
 
 onMounted(() => {
   listen<string>('file', (event) => {

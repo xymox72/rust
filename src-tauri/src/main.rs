@@ -23,10 +23,10 @@ struct AppState {
 }
 
 #[command]
-async fn remove_files(state: State<'_, AppState>, window: Window,  selected_date: String,) -> Result<(), String> {
+async fn remove_files(state: State<'_, AppState>, window: Window,  days_ago: i64) -> Result<(), String> {
     let service = &state.service;
     let datetime: DateTime<Utc> =
-    utils_base::utils_base::date_format(&selected_date).map_err(|err| err.to_string())?;
+    utils_base::utils_base::calculate_date_from_days_ago(days_ago);
     
     service.remove_messages(datetime, |message| {
         window.emit("file", message).unwrap();
@@ -44,14 +44,12 @@ async fn remove_files(state: State<'_, AppState>, window: Window,  selected_date
 #[command]
 async fn get_meesages(
     state: State<'_, AppState>,
-    selected_date: String,
+    days_ago: i64
 ) -> Result<Vec<Message>, String> {
     let service = &state.service;
 
-    let date_str = selected_date;
-
     let datetime: DateTime<Utc> =
-        utils_base::utils_base::date_format(&date_str).map_err(|err| err.to_string())?;
+    utils_base::utils_base::calculate_date_from_days_ago(days_ago);
 
     let messages_result = service
         .get_meesages(datetime, None)

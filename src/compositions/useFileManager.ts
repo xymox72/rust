@@ -12,11 +12,9 @@ export function useFileManager() {
 
   // Получение количества файлов, используя daysAgo
   const getCount = async (days: number) => {
-    console.log("daysAgo", days);
     isLoading.value = true;
     try {
       count.value = await invoke("count", { daysAgo: days });
-      console.log("count", count.value);
     } catch (err) {
       console.error("Ошибка при получении количества:", err);
     } finally {
@@ -26,12 +24,12 @@ export function useFileManager() {
   };
 
   // Получение сообщений, используя daysAgo
-  const getMessages = async (days: number) => {
+  const getMessages = async (daysAgo: number) => {
     isLoading.value = true;
     try {
       const [mes, coun] = await Promise.all([
-        invoke("get_messages", { daysAgo: days }),
-        invoke("count", { daysAgo: days }),
+        invoke("get_messages", { daysAgo }),
+        invoke("count", { daysAgo }),
       ]);
       data.value = mes as IMessage[];
       count.value = coun as number;
