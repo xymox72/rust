@@ -8,7 +8,7 @@ export function useFileManager() {
   const countFails = ref<string[]>([]);
   const isLoading = ref(false);
   const isShowInfoFails = ref(false);
-  const daysAgo = ref<number | null>(null);
+  const daysAgoRef = ref<number | null>(null);
 
   // Получение количества файлов, используя daysAgo
   const getCount = async (days: number) => {
@@ -26,6 +26,7 @@ export function useFileManager() {
   // Получение сообщений, используя daysAgo
   const getMessages = async (daysAgo: number) => {
     isLoading.value = true;
+    daysAgoRef.value = daysAgo;
     try {
       const [mes, coun] = await Promise.all([
         invoke("get_messages", { daysAgo }),
@@ -41,14 +42,19 @@ export function useFileManager() {
   };
 
   // Удаление файлов
-  const removeFiles = async (days: number) => {
-    countFails.value = [];
+  const removeFiles = async () => {
+
     try {
-      await invoke("remove_files", { daysAgo: days });
+      isLoading.value = true;
+      await invoke("remove_files", { daysAgo: daysAgoRef.value });
       alert("Файлы удалены");
       reset();
+      countFails.value = [];
     } catch (err) {
       console.error("Ошибка при удалении файлов:", err);
+    }
+    finally{
+      isLoading.value = false;
     }
   };
 
@@ -59,7 +65,7 @@ export function useFileManager() {
     count.value = 0;
     countFails.value = [];
     isShowInfoFails.value = false;
-    daysAgo.value = null;
+    daysAgoRef.value = null;
   };
 
   // Тоггл для отображения ошибок
@@ -82,7 +88,7 @@ export function useFileManager() {
     countFails,
     isLoading,
     isShowInfoFails,
-    daysAgo,
+    daysAgoRef,
     getCount,
     getMessages,
     removeFiles,

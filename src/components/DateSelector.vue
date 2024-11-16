@@ -59,7 +59,7 @@ const calendarDate = computed({
 });
 
 function clearDaysAgo() {
-  console.log("dsada");
+
   daysAgo.value = null;
   //props.onReset && props.onReset();
 }

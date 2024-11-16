@@ -7,7 +7,7 @@
     <DateSelector @reset="resetHandler" ref="dateSelectorRef" @step-changed="updateStep" @dateSelected="handleDateSelection" class="mb-4" />
 
     <FileActions
-      v-if="currentStep > 1"
+
       :is-disabled="!fileManager.countData.value"
       @removeFiles="fileManager.removeFiles"
       @reset="resetHandler"
@@ -16,7 +16,7 @@
 
 
 
-    <FileTable v-if="currentStep > 1" :count-data="fileManager.countData.value" :filter-key="searchQuery" :columns="gridColumns" :data="fileManager.gridData.value" />
+    <FileTable :count-data="fileManager.countData.value" :filter-key="searchQuery" :columns="gridColumns" :data="fileManager.gridData.value" />
 
     <div v-if="isShowInfoFails" class="mt-4 space-y-2">
       <div v-for="mes in countFails" :key="mes" class="text-red-500">
@@ -55,7 +55,7 @@ const dateSelectorRef = ref(null);
 const handleDateSelection = async (days: number) => {
   await fileManager.getMessages(days);
 
-  updateStep(1);
+  updateStep(3);
 };
 
 
