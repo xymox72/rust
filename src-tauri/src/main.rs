@@ -8,14 +8,14 @@ mod utils_base;
 mod logging;
 use chrono::{DateTime, Utc};
 use collections::HashMap;
-use flexi_logger::{FileSpec, Logger, WriteMode};
-use log::{info, log, error};
+
+use log::info;
 use service::message_service::Service;
 use service::models::message::Message;
 use utils_base::utils_base::MessageServiceError;
 use dotenv::dotenv;
 use std::*;
-use tauri::{command, State, Window, Builder, Manager};
+use tauri::{command, State, Window};
 
 
 struct AppState {
