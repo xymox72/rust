@@ -1,5 +1,5 @@
 pub mod utils_base {
-    use chrono::{DateTime, NaiveDate, ParseError, TimeZone, Utc};
+    use chrono::{DateTime, Duration, NaiveDate, ParseError, TimeZone, Utc};
     use thiserror::Error;
 
     pub fn date_format(input_data: &str) -> Result<DateTime<Utc>, ParseError> {
@@ -10,6 +10,11 @@ pub mod utils_base {
         let date = Utc.from_utc_datetime(&naive_datetime);
 
         Ok(date)
+    }
+
+    pub fn calculate_date_from_days_ago(days_ago: i64) -> DateTime<Utc> {
+        let target_date = Utc::now() - Duration::days(days_ago);
+        target_date
     }
 
     #[derive(Error, Debug)]

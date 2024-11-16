@@ -65,13 +65,11 @@ async fn get_meesages(
 }
 
 #[command]
-async fn count(state: State<'_, AppState>,  selected_date: String) -> Result<i64, String> {
+async fn count(state: State<'_, AppState>,  days_ago: i64) -> Result<i64, String> {
     let service = &state.service;
 
-    let date_str = selected_date;
-
     let datetime: DateTime<Utc> =
-        utils_base::utils_base::date_format(&date_str).map_err(|err| err.to_string())?;
+        utils_base::utils_base::calculate_date_from_days_ago(days_ago);
     let count_result = service
         .get_count_of_messages(datetime)
         .await
