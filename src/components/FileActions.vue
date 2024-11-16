@@ -1,26 +1,24 @@
 <!-- src/components/FileActions.vue -->
 <template>
   <div class="flex gap-4 mt-4">
-    <button class="bg-red-500 text-white font-semibold py-2 px-4 rounded" :disabled="!countData"
+    <button class="bg-red-500 text-white font-semibold py-2 px-4 rounded"  :class="{ 'opacity-50 cursor-not-allowed': isDisabled }" :disabled="isDisabled"
       @click="$emit('removeFiles')" type="submit">
-      Remove All files
+      Удалить файлы
     </button>
-    <button class="bg-green-500 text-white font-semibold py-2 px-4 rounded" :disabled="!countData"
-      @click="$emit('showFiles')" type="submit">
-      Show table of files
-    </button>
-    <button class="bg-red-300 text-white font-semibold py-2 px-4 rounded" @click="$emit('toggleFails')">
-      FAILS - {{ countFails }}
+
+    <button  class="bg-green-500 text-white font-semibold py-2 px-4 rounded"     :class="{ 'opacity-50 cursor-not-allowed': isDisabled }"  :disabled="isDisabled"
+      @click="$emit('reset')" type="submit">
+      Сброс состояния
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { defineProps } from "vue";
-
+const emit = defineEmits(["removeFiles", "reset"]);
 defineProps({
-  countData: Number,
-  countFails: Number,
+  isDisabled: Boolean
+
 });
 </script>
 

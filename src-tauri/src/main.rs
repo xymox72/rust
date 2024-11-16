@@ -42,7 +42,7 @@ async fn remove_files(state: State<'_, AppState>, window: Window,  days_ago: i64
 }
 
 #[command]
-async fn get_meesages(
+async fn get_messages(
     state: State<'_, AppState>,
     days_ago: i64
 ) -> Result<Vec<Message>, String> {
@@ -93,7 +93,7 @@ async fn main() -> Result<(), MessageServiceError> {
     }).expect("Error setting Ctrl-C handler");
         tauri::Builder::default()
         .manage(AppState { service })
-        .invoke_handler(tauri::generate_handler![get_meesages, remove_files, count, get_envs])
+        .invoke_handler(tauri::generate_handler![get_messages, remove_files, count, get_envs])
         .on_window_event(|event| match event.event() {
             tauri::WindowEvent::CloseRequested { api, .. } => {
             info!("Program is shutting down");

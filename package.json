@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "yarn tauri dev",
+    "dev": "vite",
+    "dev1": "yarn tauri dev",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
@@ -15,6 +16,7 @@
     "@vuepic/vue-datepicker": "^8.8.0",
     "date-fns": "^3.6.0",
     "luxon": "^3.4.4",
+    "mitt": "^3.0.1",
     "vue": "^3.3.4",
     "vue3-spinners": "^1.2.2"
   },

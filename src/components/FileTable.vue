@@ -1,5 +1,6 @@
 <!-- src/components/FileTable.vue -->
 <template>
+        <div class="font-bold mb-4">SUMMARY: {{ countData }}</div>
     <DemoGrid :filter-key="searchQuery" :columns="columns" :data="data" class="mt-4" />
 </template>
 
@@ -11,5 +12,6 @@ defineProps({
     columns: Array,
     data: Array,
     searchQuery: String,
+    countData: Number
 });
 </script>
