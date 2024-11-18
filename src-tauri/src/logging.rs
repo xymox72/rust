@@ -1,7 +1,7 @@
 // src/logging.rs
 
 use flexi_logger::{Logger, WriteMode, FileSpec};
-use log::LevelFilter;
+
 
 pub fn init_logging() {
     Logger::try_with_str("debug")

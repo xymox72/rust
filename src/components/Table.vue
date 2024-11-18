@@ -48,9 +48,7 @@ function capitalize(str) {
   <table v-if="filteredData.length">
     <thead>
       <tr>
-        <th v-for="key in columns"
-          @click="sortBy(key)"
-          :class="{ active: sortKey == key }">
+        <th v-for="key in columns" @click="sortBy(key)" :class="{ active: sortKey == key }">
           {{ capitalize(key) }}
           <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
           </span>
@@ -60,7 +58,7 @@ function capitalize(str) {
     <tbody>
       <tr v-for="entry in filteredData">
         <td v-for="key in columns">
-          {{entry[key]}}
+          {{ entry[key] }}
         </td>
       </tr>
     </tbody>

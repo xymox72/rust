@@ -8,14 +8,14 @@ mod utils_base;
 mod logging;
 use chrono::{DateTime, Utc};
 use collections::HashMap;
-use flexi_logger::{FileSpec, Logger, WriteMode};
-use log::{info, log, error};
+
+use log::info;
 use service::message_service::Service;
 use service::models::message::Message;
 use utils_base::utils_base::MessageServiceError;
 use dotenv::dotenv;
 use std::*;
-use tauri::{command, State, Window, Builder, Manager};
+use tauri::{command, State, Window};
 
 
 struct AppState {
@@ -23,10 +23,10 @@ struct AppState {
 }
 
 #[command]
-async fn remove_files(state: State<'_, AppState>, window: Window,  selected_date: String,) -> Result<(), String> {
+async fn remove_files(state: State<'_, AppState>, window: Window,  days_ago: i64) -> Result<(), String> {
     let service = &state.service;
     let datetime: DateTime<Utc> =
-    utils_base::utils_base::date_format(&selected_date).map_err(|err| err.to_string())?;
+    utils_base::utils_base::calculate_date_from_days_ago(days_ago);
     
     service.remove_messages(datetime, |message| {
         window.emit("file", message).unwrap();
@@ -42,16 +42,14 @@ async fn remove_files(state: State<'_, AppState>, window: Window,  selected_date
 }
 
 #[command]
-async fn get_meesages(
+async fn get_messages(
     state: State<'_, AppState>,
-    selected_date: String,
+    days_ago: i64
 ) -> Result<Vec<Message>, String> {
     let service = &state.service;
 
-    let date_str = selected_date;
-
     let datetime: DateTime<Utc> =
-        utils_base::utils_base::date_format(&date_str).map_err(|err| err.to_string())?;
+    utils_base::utils_base::calculate_date_from_days_ago(days_ago);
 
     let messages_result = service
         .get_meesages(datetime, None)
@@ -65,13 +63,11 @@ async fn get_meesages(
 }
 
 #[command]
-async fn count(state: State<'_, AppState>,  selected_date: String) -> Result<i64, String> {
+async fn count(state: State<'_, AppState>,  days_ago: i64) -> Result<i64, String> {
     let service = &state.service;
 
-    let date_str = selected_date;
-
     let datetime: DateTime<Utc> =
-        utils_base::utils_base::date_format(&date_str).map_err(|err| err.to_string())?;
+        utils_base::utils_base::calculate_date_from_days_ago(days_ago);
     let count_result = service
         .get_count_of_messages(datetime)
         .await
@@ -97,7 +93,7 @@ async fn main() -> Result<(), MessageServiceError> {
     }).expect("Error setting Ctrl-C handler");
         tauri::Builder::default()
         .manage(AppState { service })
-        .invoke_handler(tauri::generate_handler![get_meesages, remove_files, count, get_envs])
+        .invoke_handler(tauri::generate_handler![get_messages, remove_files, count, get_envs])
         .on_window_event(|event| match event.event() {
             tauri::WindowEvent::CloseRequested { api, .. } => {
             info!("Program is shutting down");
